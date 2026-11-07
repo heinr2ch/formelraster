@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Formelraster — Tabellen unter Druck</title>
+<meta name="description" content="Formelraster ist ein unabhängiges Tabellenrätselspiel mit Zeitmodus, Training und einem freien Arbeitsblatt.">
+<link rel="icon" href="assets/formelraster.svg" type="image/svg+xml">
+<script src="assets/theme.js"></script>
+<link rel="stylesheet" href="assets/formelraster.css">
+</head>
+<body>
+<svg class="glass-defs" aria-hidden="true" width="0" height="0"><defs><filter id="glassRefraction" x="-10%" y="-30%" width="120%" height="160%" color-interpolation-filters="sRGB"><feTurbulence type="fractalNoise" baseFrequency=".012 .042" numOctaves="1" seed="11" result="glassNoise"/><feDisplacementMap in="SourceGraphic" in2="glassNoise" scale="11" xChannelSelector="R" yChannelSelector="G"/></filter></defs></svg>
+<header><div class="bar"><div class="brand"><img class="mark" src="assets/formelraster.svg" alt="" width="33" height="33"> FORMELRASTER</div><span class="eyebrow">Die Tabellenliga</span><div class="bar-actions"><label class="theme-picker"><span aria-hidden="true">◐</span><select id="themePicker" aria-label="Farbschema"><option value="system">System</option><option value="light">Hell</option><option value="dark">Dunkel</option></select></label><button id="glossaryOpen">ƒx Glossar</button><button id="help" class="ghost">Spielhilfe</button></div></div></header>
+<main>
+<div class="hero"><div><div class="eyebrow">Tabellen unter Druck</div><h1>Formel<span>raster</span></h1><p class="muted">Löse echte Tabellenrätsel. Schreib Formeln, prüfe Zahlen und schlag die Uhr.</p></div><div class="record"><span class="label">Lokaler Rekord</span><strong id="record">0 Pkt.</strong></div></div>
+<nav class="modes" aria-label="Spielmodus">
+<button class="mode" data-mode="ranked" aria-pressed="true"><strong>Ranked</strong><small>3 Aufgaben gegen die Uhr</small></button>
+<button class="mode" data-mode="endless" aria-pressed="false"><strong>Unendlich</strong><small>Immer neue Aufgaben</small></button>
+<button class="mode" data-mode="practice" aria-pressed="false"><strong>Training</strong><small>Aufgaben frei wählen</small></button>
+<button class="mode" data-mode="creative" aria-pressed="false"><strong>Kreativ</strong><small>Freie Tabelle und CSV-Export</small></button>
+</nav>
+<div class="layout">
+<section class="panel side" aria-labelledby="taskTitle">
+<div class="label" id="stage"></div><h2 id="taskTitle"></h2><p id="brief" class="brief"></p>
+<div class="stats" id="stats"><div class="stat"><span id="metricLabel">Zeit</span><strong id="timer">—</strong></div><div class="stat"><span id="scoreLabel">Punkte</span><strong id="score">0</strong></div></div>
+<div class="actions"><button id="start" class="primary">Runde starten</button><button id="hint">Tipp</button></div>
+<p class="hint" id="hintText"></p><p id="status" class="status" role="status" aria-live="polite"></p>
+</section>
+<section class="panel sheet" aria-label="Spielbare Tabelle">
+<div class="toolbar"><span class="label" id="sheetName">Arbeitsblatt</span><select id="challenge" aria-label="Trainingsaufgabe" hidden></select><div class="sheet-tools"><button id="touchRange" class="touch-tool" aria-pressed="false">Bereich</button><button id="touchMenu" class="touch-tool">Zellmenü</button><button id="autoSum" title="Auswahl summieren">Σ AutoSumme</button><button id="export" hidden>CSV speichern</button></div></div>
+<div class="formula"><code id="address">A1</code><span aria-hidden="true">ƒx</span><input id="formula" aria-label="Zellwert oder Formel" autocomplete="off" spellcheck="false"></div>
+<p class="touch-hint">Tabelle seitlich wischen · Antippen zum Bearbeiten</p><div class="grid" id="grid" aria-label="Tabellenbereich"></div>
+<form class="answer" id="answerForm"><label>Antwort <input id="answer" placeholder="Zahl, Text oder =Formel" autocomplete="off" required></label><button class="primary" id="submit">Prüfen</button></form>
+</section>
+</div>
+<div class="foot muted"><span>Ziehen markiert · Grünes Eck füllt aus · Grüner Randgriff verschiebt</span><button class="ghost" id="reset">Tabelle zurücksetzen</button></div>
+<footer class="developer-credit"><span class="label">Entwickler</span><img src="assets/developer-logo.png" alt="KlneArbyte" width="1376" height="768"></footer>
+</main>
+<div id="cellMenu" class="cell-menu" role="menu" aria-label="Zellaktionen" hidden>
+<div id="menuAddress" class="menu-heading" aria-hidden="true"></div>
+<button role="menuitem" data-action="cut">Ausschneiden <small>Strg+X</small></button>
+<button role="menuitem" data-action="copy">Kopieren <small>Strg+C</small></button>
+<button role="menuitem" data-action="paste">Einfügen <small>Strg+V</small></button>
+<hr>
+<button role="menuitem" data-action="clear">Inhalte löschen <small>Entf</small></button>
+<button role="menuitem" data-action="sum">Σ AutoSumme</button>
+<hr>
+<button role="menuitem" data-action="insert-row">Zeile einfügen</button>
+<button role="menuitem" data-action="delete-row">Zeile löschen</button>
+<button role="menuitem" data-action="insert-column">Spalte einfügen</button>
+<button role="menuitem" data-action="delete-column">Spalte löschen</button>
+</div>
+<dialog id="guide"><h2>So spielst du</h2><p>Im Ranked bekommst du drei Aufgaben mit je eigener Zeit. Das Zeitlimit startet erst mit der Runde. Richtige Antworten bringen Punkte, Restzeit einen Bonus. Ein Tipp und falsche Versuche kosten Punkte.</p><ul><li>Gib eine Antwort direkt ein oder berechne sie, etwa mit <kbd>=SUMME(B2:B5)</kbd>.</li><li>Ziehe mit der Maus über Zellen, um einen Bereich zu markieren. Ein Rechtsklick öffnet die Zellaktionen. Das grüne Kästchen unten rechts füllt Formeln oder Werte aus. Über den kleinen grünen Griff oben links verschiebst du die Auswahl.</li><li>Tippe z. B. <kbd>=SUMME(</kbd> in die <strong>ƒx</strong>-Leiste oder das Antwortfeld und ziehe über einen Zellbereich, um ihn einzusetzen. Formel mit <kbd>Enter</kbd> übernehmen.</li><li><kbd>↑</kbd> <kbd>↓</kbd> <kbd>←</kbd> <kbd>→</kbd> navigieren, mit <kbd>Umschalt</kbd> wird dabei markiert. <kbd>Enter</kbd> geht eine Zeile weiter, <kbd>Tab</kbd> eine Zelle. <kbd>F2</kbd> bearbeitet, <kbd>Esc</kbd> bricht die Zellbearbeitung ab.</li><li>Mit <kbd>Strg+C</kbd> und <kbd>Strg+V</kbd> kopierst du Bereiche und fügst Tabellenwerte ein. <kbd>Entf</kbd> leert eine Mehrfachauswahl. <strong>Σ AutoSumme</strong> schreibt eine Summenformel.</li><li>Beim Ausfüllen passt sich <kbd>A1</kbd> an. <kbd>$A$1</kbd> bleibt fest. Zwei markierte Zahlen wie 1 und 2 werden beim Ziehen als Reihe fortgesetzt.</li><li>Verfügbar sind SUMME, MITTELWERT, MIN, MAX, ANZAHL, WENN, RUNDEN, ZÄHLENWENN, SUMMEWENN und XVERWEIS sowie ihre englischen Namen.</li><li>In Formeln trennst du Argumente mit Semikolon. Auf Englisch geht auch ein Komma, wenn es von Leerzeichen gefolgt wird. Dezimalzahlen dürfen Komma oder Punkt verwenden.</li><li>Training und Kreativmodus haben keinen Timer. Der CSV-Export enthält die berechneten Zellwerte.</li></ul><form method="dialog"><button class="primary">Verstanden</button></form></dialog>
+<dialog id="glossary" aria-labelledby="glossaryTitle">
+<div class="glossary-shell">
+<header class="glossary-head"><div class="glossary-top"><div><span class="eyebrow">Nachschlagen &amp; ausprobieren</span><h2 id="glossaryTitle">Formelglossar</h2></div><form method="dialog"><button aria-label="Glossar schließen">×</button></form></div>
+<p>Finde Funktionen auf Deutsch oder Englisch. Spielbare Beispiele kannst du direkt in deine Tabelle einsetzen.</p>
+<div class="glossary-controls"><input type="search" id="functionSearch" class="glossary-search" placeholder="Suchen, z. B. SUMME, XLOOKUP oder Text" aria-label="Funktionen suchen" autocomplete="off" autofocus>
+<div class="glossary-segments" aria-label="Funktionsumfang"><button type="button" data-scope="game" aria-pressed="true">Im Spiel</button><button type="button" data-scope="excel" aria-pressed="false">Ganz Excel</button></div></div></header>
+<div class="glossary-body" id="glossaryBody"><p id="functionCount" class="glossary-count" role="status"></p><div id="functionResults" class="glossary-results"></div></div>
+<footer class="glossary-footer"><p id="glossaryNote"></p><a href="https://support.microsoft.com/de-de/excel/excel-functions-alphabetical" target="_blank" rel="noopener noreferrer">Microsoft-Funktionsverzeichnis ↗</a></footer>
+</div></dialog>
+<script src="data/excel-function-index.js"></script>
+<script src="assets/endless.js"></script>
+<script src="assets/formelraster.js"></script>
+</body>
+</html>

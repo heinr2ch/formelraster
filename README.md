@@ -8,8 +8,10 @@ Ein Tabellenrätselspiel für den Browser. Berechne Ergebnisse direkt im Arbeits
 
 - **Ranked:** Drei Aufgaben mit Zeitlimit, Punkten und lokalem Bestwert.
 - **Unendlich:** Fortlaufend generierte Aufgaben mit steigender Schwierigkeit. Der Fortschritt bleibt im Browser gespeichert.
-- **Training:** Neun feste Aufgaben ohne Zeitdruck.
-- **Kreativ:** Freies Arbeitsblatt mit Formeln und CSV-Export.
+- **Training:** Zwölf Aufgaben ohne Zeitdruck.
+- **Kreativ:** Freies Arbeitsblatt, drei optionale Projekte und CSV-Export.
+
+Antworten beginnen mit `=`. Spieltöne kannst du über die Note in der Kopfleiste einschalten.
 
 Mit den Pfeiltasten bewegst du dich durch die Zellen. Enter und Tab übernehmen Eingaben. Am Smartphone gibt es Tasten für die Bereichsauswahl und das Zellmenü.
 

@@ -1,19 +1,9 @@
 "use strict";
-const tasks = [
-{tier:"Bronze",title:"Kassensturz",time:45,brief:"Wie hoch ist der Gesamtumsatz aus allen vier Bestellungen?",hint:"Addiere B2 bis B5. In Excel geht das mit =SUMME(B2:B5).",answer:385,rows:[["Bestellung","Umsatz (€)"],["EX-101",120],["EX-102",85],["EX-103",40],["EX-104",140]]},
-{tier:"Bronze",title:"Das schnellste Ticket",time:45,brief:"Was war die kürzeste Bearbeitungszeit in Minuten?",hint:"MIN sucht den kleinsten Wert in einem Zellbereich.",answer:9,rows:[["Ticket","Minuten"],["A-41",18],["A-42",9],["A-43",24],["A-44",12],["A-45",17]]},
-{tier:"Bronze",title:"Durchschnitt oder Ausreißer?",time:50,brief:"Wie viele Punkte hat das Team im Durchschnitt erzielt?",hint:"=MITTELWERT(B2:B6) berechnet den Mittelwert.",answer:24,rows:[["Spieler","Punkte"],["Mara",18],["Ben",26],["Kim",20],["Nika",31],["Jo",25]]},
-{tier:"Silber",title:"Doppelt kassiert",time:65,brief:"Wie hoch ist der echte Gesamtumsatz? Jede Bestell-ID zählt genau einmal. Doppelte Zeilen sind identisch.",hint:"EX-201 und EX-204 kommen doppelt vor. Zieh je eine Kopie vom Gesamtbetrag ab.",answer:344,rows:[["Bestellung","Umsatz (€)"],["EX-201",75],["EX-202",54],["EX-201",75],["EX-203",90],["EX-204",125],["EX-204",125]]},
-{tier:"Silber",title:"Retourenalarm",time:60,brief:"Wie viele Bestellungen haben den Status Retour?",hint:'Versuche =ZÄHLENWENN(B2:B7;"Retour").',answer:3,rows:[["Bestellung","Status"],["EX-301","Versandt"],["EX-302","Retour"],["EX-303","Retour"],["EX-304","Versandt"],["EX-305","Offen"],["EX-306","Retour"]]},
-{tier:"Silber",title:"Ein Kanal zahlt sich aus",time:65,brief:"Wie viel Umsatz kam ausschließlich über den Online-Kanal?",hint:'Mit =SUMMEWENN(A2:A7;"Online";B2:B7) addierst du nur passende Zeilen.',answer:290,rows:[["Kanal","Umsatz (€)"],["Online",85],["Shop",120],["Online",130],["Shop",50],["Online",75],["Partner",200]]},
-{tier:"Gold",title:"Finale gegen die Pivot-Tabelle",time:90,brief:"Welche Filiale hat nach Abzug der Retouren den höchsten Gesamtumsatz? Gib den Namen der Filiale ein.",hint:'Berechne je Filiale Umsatz minus Retouren. Für Nord etwa =SUMMEWENN(A2:A7;"Nord";B2:B7)-SUMMEWENN(A2:A7;"Nord";C2:C7).',answer:"West",rows:[["Filiale","Umsatz (€)","Retouren (€)"],["Nord",240,40],["West",260,35],["Süd",240,50],["Nord",280,70],["West",240,25],["Süd",290,80]]},
-{tier:"Gold",title:"Preis aus der zweiten Tabelle",time:80,brief:"Ein Kunde bestellt 7 Stück des Artikels P-42. Was kostet die Bestellung laut Preisliste insgesamt?",hint:'=XVERWEIS("P-42";A2:A6;B2:B6)*7 sucht zuerst den Preis.',answer:129.5,rows:[["Artikel","Stückpreis (€)"],["P-11",6.5],["P-23",23],["P-42",18.5],["P-60",9],["P-74",15]]},
-{tier:"Gold",title:"Die Marge entscheidet",time:85,brief:"Welche Kampagne hat die höchste Gewinnmarge? Marge = (Umsatz − Kosten) / Umsatz. Gib den Kampagnennamen ein.",hint:"Lege in D eine Hilfsspalte an. Für die erste Kampagne lautet die Formel =(B2-C2)/B2.",answer:"Mond",rows:[["Kampagne","Umsatz (€)","Kosten (€)"],["Sonne",800,540],["Mond",450,270],["Wolke",1200,770],["Stern",650,420]]}
-];
+const tasks=challenges;
 const $=id=>document.getElementById(id);
 const bestScoreKey="formelraster-best-v1";
 const width=8,height=10;
-let mode="ranked",task=tasks[0],selected=[0,0],cells=[],round=[],index=0,score=0,phase="ready",deadline=0,timerId=null,errors=0,usedHint=false,practiceIndex=0,lastResult="";
+let mode="ranked",task=tasks[0],selected=[0,0],cells=[],round=[],index=0,score=0,phase="ready",deadline=0,timerId=null,errors=0,usedHint=false,practiceIndex=0,creativeIndex=-1,lastResult="";
 const endlessProgressKey="formelraster-endless-v1";
 let endlessSolved=0,endlessTask=null,endlessNext=true;
 try{const saved=Number(localStorage.getItem(endlessProgressKey));if(Number.isSafeInteger(saved)&&saved>=0)endlessSolved=saved}catch{}
@@ -324,7 +314,7 @@ function autoSum(){
  }
  const [rr,cc]=destination;
  if(cells[rr][cc]!==""){message("Wähle eine leere Ergebniszelle für AutoSumme.","bad");return}
- cells[rr][cc]="=SUMME("+rangeName(source)+")";renderGrid();selectCell(rr,cc);
+ cells[rr][cc]="=SUMME("+rangeName(source)+")";renderGrid();selectCell(rr,cc);signal("cell",inputs[rr][cc].parentElement);
 }
 
 let cellEdit=null,cellBeforeEdit="";
@@ -427,14 +417,15 @@ function sync(){
  $("record").textContent=record+" Pkt.";$("score").textContent=endless?endlessSolved:ranked?score:"—";
  $("metricLabel").textContent=endless?"Stufe":"Zeit";$("scoreLabel").textContent=endless?"Gelöst":"Punkte";
  if(endless){$("timer").textContent=task?.level??endlessSolved+1;$("timer").classList.remove("low")}
- $("challenge").hidden=mode!=="practice";$("export").hidden=!creative;$("stats").hidden=!ranked&&!endless;
- $("answerForm").hidden=creative;$("answer").disabled=!playing;$("submit").disabled=!playing;
- $("hint").hidden=creative;$("hint").disabled=!playing||usedHint;$("reset").disabled=ranked&&!playing;
+ $("challenge").hidden=mode!=="practice";$("creativeProject").hidden=!creative;$("export").hidden=!creative;$("stats").hidden=!ranked&&!endless;
+ $("answerForm").hidden=creative&&!task;$("answer").disabled=!playing;$("submit").disabled=!playing;
+ $("hint").hidden=creative&&!task;$("hint").disabled=!playing||usedHint;$("reset").disabled=ranked&&!playing;
  $("formula").disabled=ranked&&!playing;for(const row of inputs)for(const input of row)input.disabled=ranked&&!playing;
  for(const id of ["autoSum","touchRange","touchMenu"])$(id).disabled=$("formula").disabled;paintSelection();
  $("start").hidden=creative||playing;
  $("start").textContent=phase==="result"?(ranked&&index===round.length-1?"Ergebnis ansehen":"Nächste Aufgabe"):phase==="done"?"Neue Runde":phase==="solved"?"Nächste Aufgabe":"Runde starten";
  $("sheetName").textContent=creative?"Freies Arbeitsblatt":"Arbeitsblatt · "+(task?.tier??"Ranked");
+ if(creative&&task){$("stage").textContent="Kreativ · Projekt";$("taskTitle").textContent=task.title;$("brief").textContent=task.brief;return}
  if(creative){$("stage").textContent="Kreativ · ohne Uhr";$("taskTitle").textContent="Dein Tabellenlabor";$("brief").textContent="Baue deine eigene Tabelle, experimentiere mit Formeln und exportiere die Ergebnisse als CSV.";return}
  if(ranked&&(phase==="ready"||phase==="done")){
   $("stage").textContent="Ranked · Bronze bis Gold";$("taskTitle").textContent=phase==="done"?"Runde beendet":"Bereit für Ranked?";
@@ -448,7 +439,7 @@ function sync(){
 function setupTask(next){
  task=next;phase="playing";errors=0;usedHint=false;$("hintText").textContent="";message("");loadGrid();
  if(mode==="ranked"){deadline=Date.now()+task.time*1000;stopClock();timerId=setInterval(tick,150);tick()}
- sync();
+ sync();signal("task",$("taskTitle"));
 }
 function nextEndlessTask(){
  if(endlessNext){const level=endlessSolved+1;endlessTask={...generateEndlessTask(level),level};endlessNext=false}
@@ -458,6 +449,7 @@ function switchMode(next){
  stopClock();mode=next;phase="ready";task=null;score=0;usedHint=false;$("hintText").textContent="";message("");
  document.querySelectorAll(".mode").forEach(btn=>btn.setAttribute("aria-pressed",String(btn.dataset.mode===mode)));
  if(mode==="endless"){nextEndlessTask();return}
+ if(mode==="creative"&&creativeIndex>=0){setupTask(creativeProjects[creativeIndex]);return}
  if(mode==="practice"){setupTask(tasks[practiceIndex]);return}
  loadGrid();sync();
 }
@@ -468,6 +460,7 @@ function finishTask(correct){
   try{localStorage.setItem(endlessProgressKey,String(endlessSolved))}catch{}
   message("Richtig! Stufe "+endlessSolved+" geschafft.","good");sync();return;
  }
+ if(mode==="creative"){phase="solved";message("Projektziel erreicht. Du kannst die Tabelle weiter bearbeiten und als CSV speichern.","good");sync();return}
  if(mode==="practice"){phase="solved";message("Richtig! Weiter zur nächsten Aufgabe.","good");sync();return}
  phase="result";
  if(correct){const earned=Math.max(50,300+time*5-errors*35-(usedHint?70:0));score+=earned;message("Richtig! +"+earned+" Punkte.","good")}
@@ -489,9 +482,10 @@ $("start").onclick=()=>{
 $("answerForm").onsubmit=e=>{
  e.preventDefault();if(phase!=="playing")return;if(mode==="ranked"&&!secondsLeft()){finishTask(false);return}
  const raw=$("answer").value.trim();if(!raw)return;
- let value;try{value=raw.startsWith("=")?formulaValue(raw):raw}catch(error){message("Formel prüfen: "+error.message,"bad");return}
- if(equal(value,task.answer)){finishTask(true);return}
- errors++;message("Noch nicht richtig. Du kannst es erneut versuchen.","bad");
+ if(!raw.startsWith("=")){message("Gib deine Antwort als Formel ein. Sie muss mit = beginnen.","bad");return}
+ let value;try{value=formulaValue(raw)}catch(error){message("Formel prüfen: "+error.message,"bad");return}
+ if(equal(value,task.answer)){finishTask(true);signal("success",$("status"));return}
+ errors++;message("Noch nicht richtig. Du kannst es erneut versuchen.","bad");signal("retry",$("answer"));
 };
 $("hint").onclick=()=>{usedHint=true;$("hintText").textContent=task.hint;sync()};
 $("reset").onclick=()=>{loadGrid();message("Tabelle zurückgesetzt.")}
@@ -521,8 +515,45 @@ $("formula").addEventListener("keydown",e=>{
 });
 $("formula").addEventListener("change",()=>{const [r,c]=selected;cells[r][c]=$("formula").value;renderGrid()});
 $("challenge").onchange=e=>{practiceIndex=Number(e.target.value);setupTask(tasks[practiceIndex])};
+$("creativeProject").onchange=event=>{creativeIndex=Number(event.target.value);switchMode("creative")};
 document.querySelectorAll(".mode").forEach(btn=>btn.onclick=()=>{if(btn.dataset.mode!==mode)switchMode(btn.dataset.mode)});
 $("help").onclick=()=>$("guide").showModal();
+const soundPreference="formelraster-sound-v1";
+let soundEnabled=false,audioContext;
+try{soundEnabled=localStorage.getItem(soundPreference)==="on"}catch{}
+const reducedMotion=matchMedia("(prefers-reduced-motion: reduce)");
+function refreshSound(){ $("soundToggle").setAttribute("aria-pressed",String(soundEnabled)); }
+function playCue(kind){
+ if(!soundEnabled)return;
+ const Audio=window.AudioContext||window.webkitAudioContext;if(!Audio)return;
+ try{
+  audioContext??=new Audio();
+  if(audioContext.state==="suspended")audioContext.resume().catch(()=>{});
+  const notes=kind==="success"?[523,659,784]:kind==="retry"?[290,230]:kind==="task"?[392,523]:[580];
+  const time=audioContext.currentTime;
+  notes.forEach((hz,i)=>{
+   const oscillator=audioContext.createOscillator(),volume=audioContext.createGain();
+   const start=time+i*.062;
+   oscillator.type="sine";oscillator.frequency.value=hz;
+   volume.gain.setValueAtTime(.001,start);volume.gain.exponentialRampToValueAtTime(.075,start+.013);
+   volume.gain.exponentialRampToValueAtTime(.001,start+.15);
+   oscillator.connect(volume);volume.connect(audioContext.destination);oscillator.start(start);oscillator.stop(start+.16);
+  });
+ }catch{}
+}
+const motionClass={task:"cue-task",success:"cue-success",retry:"cue-retry",cell:"cue-cell"};
+function signal(kind,target){
+ if(!reducedMotion.matches){
+  const effect=motionClass[kind];target.classList.remove(effect);void target.offsetWidth;target.classList.add(effect);
+  target.addEventListener("animationend",()=>target.classList.remove(effect),{once:true});
+ }
+ playCue(kind);
+}
+$("soundToggle").onclick=()=>{
+ soundEnabled=!soundEnabled;refreshSound();try{localStorage.setItem(soundPreference,soundEnabled?"on":"off")}catch{}
+ if(soundEnabled)playCue("cell");
+};
+refreshSound();
 $("export").onclick=()=>{
  const rows=cells.map((row,r)=>row.map((_,c)=>{try{return String(cellValue(r,c))}catch(error){return error.message}}));
  const csv=rows.map(row=>row.map(v=>'"'+v.replaceAll('"','""')+'"').join(";")).join("\r\n");
@@ -604,4 +635,5 @@ document.querySelectorAll("[data-scope]").forEach(button=>button.onclick=()=>{
  drawGlossary();$("glossaryBody").scrollTop=0;
 });
 tasks.forEach((t,i)=>$("challenge").add(new Option(t.tier+" · "+t.title,i)));
+creativeProjects.forEach((project,i)=>$("creativeProject").add(new Option(project.title,i)));
 makeGrid();switchMode("ranked");

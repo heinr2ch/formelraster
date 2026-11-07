@@ -505,6 +505,7 @@ $("cellMenu").addEventListener("keydown",event=>{
  if(event.key==="Tab")closeCellMenu();
 });
 document.addEventListener("pointerdown",event=>{if(!$("cellMenu").contains(event.target))closeCellMenu()});
+document.addEventListener("contextmenu",event=>event.preventDefault());
 window.addEventListener("resize",()=>closeCellMenu());
 $("formula").addEventListener("keydown",e=>{
  if(e.key==="Enter"||e.key==="Escape"){
@@ -522,6 +523,15 @@ const soundPreference="formelraster-sound-v1";
 let soundEnabled=false,audioContext;
 try{soundEnabled=localStorage.getItem(soundPreference)==="on"}catch{}
 const reducedMotion=matchMedia("(prefers-reduced-motion: reduce)");
+const motionPreference="formelraster-motion-v1";
+const motionPicker=$("motionPicker");
+try{const saved=localStorage.getItem(motionPreference);if(["system","on","off"].includes(saved))motionPicker.value=saved}catch{}
+function updateMotion(){document.documentElement.dataset.motion=motionPicker.value}
+motionPicker.onchange=()=>{
+ updateMotion();try{localStorage.setItem(motionPreference,motionPicker.value)}catch{}
+ if(motionPicker.value==="off")$("sheetEffects").removeAttribute("data-effect");
+};
+updateMotion();
 function refreshSound(){ $("soundToggle").setAttribute("aria-pressed",String(soundEnabled)); }
 function playCue(kind){
  if(!soundEnabled)return;
@@ -543,9 +553,11 @@ function playCue(kind){
 }
 const motionClass={task:"cue-task",success:"cue-success",retry:"cue-retry",cell:"cue-cell"};
 function signal(kind,target){
- if(!reducedMotion.matches){
+ if(motionPicker.value==="on"||(motionPicker.value==="system"&&!reducedMotion.matches)){
   const effect=motionClass[kind];target.classList.remove(effect);void target.offsetWidth;target.classList.add(effect);
   target.addEventListener("animationend",()=>target.classList.remove(effect),{once:true});
+  const overlay=$("sheetEffects");
+  overlay.removeAttribute("data-effect");void overlay.offsetWidth;overlay.dataset.effect=kind;
  }
  playCue(kind);
 }

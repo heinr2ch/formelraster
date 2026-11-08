@@ -144,3 +144,13 @@ img{-webkit-user-drag:none}
 @media(max-width:390px){#onboarding[data-intro=true] .intro-logo{width:70px;height:70px}.intro-equations span:nth-child(2){right:3%;bottom:12%}}
 .hero .intro-replay{margin-top:12px;padding:6px 11px;background:#e0ffed20;color:#effff5;border-color:#b7e4cd70;box-shadow:inset 0 1px 0 #ffffff35;font-size:13px}
 .hero .intro-replay:hover{background:#e0ffed38;border-color:#c9ffe1}
+.glass-toast{max-width:calc(100% - 18px);white-space:normal}
+.glass-check{flex:none}
+#glassResult{display:block;color:var(--mint);font:750 16px var(--mono);overflow-wrap:anywhere}
+.grid td.result-cell{animation:resultCellGlow .85s var(--result-delay,0ms) cubic-bezier(.18,.7,.25,1) both}
+@keyframes resultCellGlow{
+ 0%,100%{box-shadow:inset 0 0 0 0 transparent}
+ 26%{background:var(--cell-select);box-shadow:inset 0 0 0 2px var(--handle),inset 0 0 18px color-mix(in srgb,var(--handle) 52%,transparent)}
+ 57%{box-shadow:inset 0 0 0 1px var(--handle),inset 0 0 9px color-mix(in srgb,var(--handle) 30%,transparent)}
+}
+:root[data-motion=off] .grid td.result-cell{animation:none!important}

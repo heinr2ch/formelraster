@@ -31,7 +31,7 @@ function callFunction(name,args){
  default:throw Error("#NAME?");
  }
 }
-function formulaValue(text,stack=new Set()){
+function formulaValue(text,stack=new Set(),references){
  const tokens=[];let rest=text.slice(1);
  while(rest.trim()){
   rest=rest.trimStart();
@@ -56,9 +56,9 @@ function formulaValue(text,stack=new Set()){
   if(["TRUE","WAHR"].includes(upper))return true;
   if(["FALSE","FALSCH"].includes(upper))return false;
   const [r,c]=ref(upper);
-  if(!take(":"))return cellValue(r,c,stack);
+  if(!take(":"))return cellValue(r,c,stack,references);
   const [endR,endC]=ref(tokens[i++]), values=[];
-  for(let rr=Math.min(r,endR);rr<=Math.max(r,endR);rr++)for(let cc=Math.min(c,endC);cc<=Math.max(c,endC);cc++)values.push(cellValue(rr,cc,stack));
+  for(let rr=Math.min(r,endR);rr<=Math.max(r,endR);rr++)for(let cc=Math.min(c,endC);cc<=Math.max(c,endC);cc++)values.push(cellValue(rr,cc,stack,references));
   return values;
  }
  function power(){let value=atom();while(take("%"))value=asNumber(value)/100;return take("^")?asNumber(value)**asNumber(unary()):value}
@@ -71,11 +71,12 @@ function formulaValue(text,stack=new Set()){
  if(typeof value==="number"&&!Number.isFinite(value))throw Error("#ZAHL!");
  return value;
 }
-function cellValue(r,c,stack=new Set()){
+function cellValue(r,c,stack=new Set(),references){
+ references?.add(r*width+c);
  const value=cells[r]?.[c]??"", key=nameOf(r,c);
  if(!value.startsWith("="))return value;
  if(stack.has(key))throw Error("#KREIS!");
- stack.add(key);try{return formulaValue(value,stack)}finally{stack.delete(key)}
+ stack.add(key);try{return formulaValue(value,stack,references)}finally{stack.delete(key)}
 }
 const inputs=[];
 let selectionEnd=[0,0], gesture=null, referenceArea=null, formulaEditor=null, touchRange=false;
@@ -483,8 +484,18 @@ $("answerForm").onsubmit=e=>{
  e.preventDefault();if(phase!=="playing")return;if(mode==="ranked"&&!secondsLeft()){finishTask(false);return}
  const raw=$("answer").value.trim();if(!raw)return;
  if(!raw.startsWith("=")){message("Gib deine Antwort als Formel ein. Sie muss mit = beginnen.","bad");return}
- let value;try{value=formulaValue(raw)}catch(error){message("Formel prüfen: "+error.message,"bad");return}
- if(equal(value,task.answer)){finishTask(true);signal("success",$("status"));return}
+ const references=new Set();
+ let value;try{value=formulaValue(raw,new Set(),references)}catch(error){message("Formel prüfen: "+error.message,"bad");return}
+ if(equal(value,task.answer)){
+  finishTask(true);
+  const displayValue=typeof task.answer==="number"&&typeof value==="string"?asNumber(value):value;
+  const result=formatResult(displayValue),status=$("status"),badge=$("glassResult");
+  status.textContent="Ergebnis: "+result+". "+status.textContent;
+  if(badge)badge.textContent=result;
+  signal("success",status);
+  highlightResultCells(references);
+  return;
+ }
  errors++;message("Noch nicht richtig. Du kannst es erneut versuchen.","bad");signal("retry",$("answer"));
 };
 $("hint").onclick=()=>{usedHint=true;$("hintText").textContent=task.hint;sync()};
@@ -576,8 +587,25 @@ function playCue(kind){
  }catch{}
 }
 const motionClass={task:"cue-task",success:"cue-success",retry:"cue-retry",cell:"cue-cell"};
+function motionEnabled(){return motion==="on"||(motion==="system"&&!reducedMotion.matches)}
+const resultNumber=new Intl.NumberFormat("de-DE",{maximumSignificantDigits:14});
+function formatResult(value){
+ if(typeof value==="number")return resultNumber.format(value);
+ if(typeof value==="boolean")return value?"WAHR":"FALSCH";
+ return String(value);
+}
+function highlightResultCells(references){
+ if(!motionEnabled())return;
+ const ordered=[...references].sort((a,b)=>a-b);
+ ordered.forEach((address,index)=>{
+  const cell=inputs[Math.floor(address/width)][address%width].parentElement;
+  cell.style.setProperty("--result-delay",Math.min(index,18)*27+"ms");
+  cell.classList.remove("result-cell");void cell.offsetWidth;cell.classList.add("result-cell");
+  cell.addEventListener("animationend",()=>cell.classList.remove("result-cell"),{once:true});
+ });
+}
 function signal(kind,target){
- if(motion==="on"||(motion==="system"&&!reducedMotion.matches)){
+ if(motionEnabled()){
   const effect=motionClass[kind];target.classList.remove(effect);void target.offsetWidth;target.classList.add(effect);
   target.addEventListener("animationend",()=>target.classList.remove(effect),{once:true});
   if(sheetEffects){sheetEffects.removeAttribute("data-effect");void sheetEffects.offsetWidth;sheetEffects.dataset.effect=kind}

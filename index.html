@@ -6,7 +6,7 @@
 <meta name="description" content="Formelraster ist ein unabhängiges Tabellenrätselspiel mit Zeitmodus, Training und einem freien Arbeitsblatt.">
 <link rel="icon" href="assets/formelraster.svg?v=2" type="image/svg+xml">
 <script src="assets/theme.js"></script>
-<link rel="stylesheet" href="assets/formelraster.css?v=intro-7">
+<link rel="stylesheet" href="assets/formelraster.css?v=result-8">
 </head>
 <body>
 <svg class="glass-defs" aria-hidden="true" width="0" height="0"><defs><filter id="glassRefraction" x="-10%" y="-30%" width="120%" height="160%" color-interpolation-filters="sRGB"><feTurbulence type="fractalNoise" baseFrequency=".012 .042" numOctaves="1" seed="11" result="glassNoise"/><feDisplacementMap in="SourceGraphic" in2="glassNoise" scale="11" xChannelSelector="R" yChannelSelector="G"/></filter></defs></svg>
@@ -27,7 +27,7 @@
 <p class="hint" id="hintText"></p><p id="status" class="status" role="status" aria-live="polite"></p>
 </section>
 <section class="panel sheet" aria-label="Spielbare Tabelle">
-<div class="sheet-effects" id="sheetEffects" aria-hidden="true"><span class="glass-beam"></span><span class="glass-halo"></span><span class="glass-toast"><span class="glass-check">✓</span><span>Formel richtig</span></span></div>
+<div class="sheet-effects" id="sheetEffects" aria-hidden="true"><span class="glass-beam"></span><span class="glass-halo"></span><span class="glass-toast"><span class="glass-check">✓</span><span>Formel richtig <strong id="glassResult"></strong></span></span></div>
 <div class="toolbar"><span class="label" id="sheetName">Arbeitsblatt</span><select id="challenge" aria-label="Trainingsaufgabe" hidden></select><select id="creativeProject" aria-label="Kreativprojekt" hidden><option value="-1">Freie Tabelle</option></select><div class="sheet-tools"><button id="touchRange" class="touch-tool" aria-pressed="false">Bereich</button><button id="touchMenu" class="touch-tool">Zellmenü</button><button id="autoSum" title="Auswahl summieren">Σ AutoSumme</button><button id="export" hidden>CSV speichern</button></div></div>
 <div class="formula"><code id="address">A1</code><span aria-hidden="true">ƒx</span><input id="formula" aria-label="Zellwert oder Formel" autocomplete="off" spellcheck="false"></div>
 <p class="touch-hint">Tabelle seitlich wischen · Antippen zum Bearbeiten</p><div class="grid" id="grid" aria-label="Tabellenbereich"></div>
@@ -77,6 +77,6 @@
 <script src="data/excel-function-index.js"></script>
 <script src="data/challenges.js"></script>
 <script src="assets/endless.js"></script>
-<script src="assets/formelraster.js?v=intro-7"></script>
+<script src="assets/formelraster.js?v=result-8"></script>
 </body>
 </html>

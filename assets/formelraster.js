@@ -525,13 +525,18 @@ try{soundEnabled=localStorage.getItem(soundPreference)==="on"}catch{}
 const reducedMotion=matchMedia("(prefers-reduced-motion: reduce)");
 const motionPreference="formelraster-motion-v1";
 const motionPicker=$("motionPicker");
-try{const saved=localStorage.getItem(motionPreference);if(["system","on","off"].includes(saved))motionPicker.value=saved}catch{}
-function updateMotion(){document.documentElement.dataset.motion=motionPicker.value}
-motionPicker.onchange=()=>{
- updateMotion();try{localStorage.setItem(motionPreference,motionPicker.value)}catch{}
- if(motionPicker.value==="off")$("sheetEffects").removeAttribute("data-effect");
-};
-updateMotion();
+const sheetEffects=$("sheetEffects");
+let motion="system";
+try{const saved=localStorage.getItem(motionPreference);if(["system","on","off"].includes(saved))motion=saved}catch{}
+document.documentElement.dataset.motion=motion;
+if(motionPicker){
+ motionPicker.value=motion;
+ motionPicker.onchange=()=>{
+  motion=motionPicker.value;document.documentElement.dataset.motion=motion;
+  try{localStorage.setItem(motionPreference,motion)}catch{}
+  if(motion==="off")sheetEffects?.removeAttribute("data-effect");
+ };
+}
 function refreshSound(){ $("soundToggle").setAttribute("aria-pressed",String(soundEnabled)); }
 function playCue(kind){
  if(!soundEnabled)return;
@@ -553,11 +558,10 @@ function playCue(kind){
 }
 const motionClass={task:"cue-task",success:"cue-success",retry:"cue-retry",cell:"cue-cell"};
 function signal(kind,target){
- if(motionPicker.value==="on"||(motionPicker.value==="system"&&!reducedMotion.matches)){
+ if(motion==="on"||(motion==="system"&&!reducedMotion.matches)){
   const effect=motionClass[kind];target.classList.remove(effect);void target.offsetWidth;target.classList.add(effect);
   target.addEventListener("animationend",()=>target.classList.remove(effect),{once:true});
-  const overlay=$("sheetEffects");
-  overlay.removeAttribute("data-effect");void overlay.offsetWidth;overlay.dataset.effect=kind;
+  if(sheetEffects){sheetEffects.removeAttribute("data-effect");void sheetEffects.offsetWidth;sheetEffects.dataset.effect=kind}
  }
  playCue(kind);
 }

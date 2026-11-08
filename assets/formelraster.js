@@ -700,5 +700,6 @@ if(onboarding){
  $("onboardingDismiss").onclick=()=>{markOnboardingSeen();onboarding.close()};
  onboarding.addEventListener("close",markOnboardingSeen);
  $("showOnboarding").onclick=()=>{$("guide").close();showOnboarding()};
+ $("introReplay")?.addEventListener("click",showOnboarding);
  if(!seen)showOnboarding();
 }

@@ -6,13 +6,13 @@
 <meta name="description" content="Formelraster ist ein unabhängiges Tabellenrätselspiel mit Zeitmodus, Training und einem freien Arbeitsblatt.">
 <link rel="icon" href="assets/formelraster.svg?v=2" type="image/svg+xml">
 <script src="assets/theme.js"></script>
-<link rel="stylesheet" href="assets/formelraster.css?v=intro-6">
+<link rel="stylesheet" href="assets/formelraster.css?v=intro-7">
 </head>
 <body>
 <svg class="glass-defs" aria-hidden="true" width="0" height="0"><defs><filter id="glassRefraction" x="-10%" y="-30%" width="120%" height="160%" color-interpolation-filters="sRGB"><feTurbulence type="fractalNoise" baseFrequency=".012 .042" numOctaves="1" seed="11" result="glassNoise"/><feDisplacementMap in="SourceGraphic" in2="glassNoise" scale="11" xChannelSelector="R" yChannelSelector="G"/></filter></defs></svg>
 <header><div class="bar"><div class="brand"><img class="mark" src="assets/formelraster.svg?v=2" alt="" width="33" height="33"> FORMELRASTER</div><span class="eyebrow">Die Tabellenliga</span><div class="bar-actions"><label class="theme-picker"><span aria-hidden="true">◐</span><select id="themePicker" aria-label="Farbschema"><option value="system">System</option><option value="light">Hell</option><option value="dark">Dunkel</option></select></label><button id="glossaryOpen">ƒx Glossar</button><button id="soundToggle" class="ghost" aria-pressed="false" aria-label="Spieltöne" title="Spieltöne ein- oder ausschalten"><span aria-hidden="true">♪</span></button><button id="help" class="ghost">Spielhilfe</button></div></div></header>
 <main>
-<div class="hero"><div><div class="eyebrow">Tabellen unter Druck</div><h1>Formel<span>raster</span></h1><p class="muted">Löse echte Tabellenrätsel. Schreib Formeln, prüfe Zahlen und schlag die Uhr.</p></div><div class="record"><span class="label">Lokaler Rekord</span><strong id="record">0 Pkt.</strong></div></div>
+<div class="hero"><div><div class="eyebrow">Tabellen unter Druck</div><h1>Formel<span>raster</span></h1><p class="muted">Löse echte Tabellenrätsel. Schreib Formeln, prüfe Zahlen und schlag die Uhr.</p><button id="introReplay" class="intro-replay" type="button">▶ Intro ansehen</button></div><div class="record"><span class="label">Lokaler Rekord</span><strong id="record">0 Pkt.</strong></div></div>
 <nav class="modes" aria-label="Spielmodus">
 <button class="mode" data-mode="ranked" aria-pressed="true"><strong>Ranked</strong><small>3 Aufgaben gegen die Uhr</small></button>
 <button class="mode" data-mode="endless" aria-pressed="false"><strong>Unendlich</strong><small>Immer neue Aufgaben</small></button>
@@ -77,6 +77,6 @@
 <script src="data/excel-function-index.js"></script>
 <script src="data/challenges.js"></script>
 <script src="assets/endless.js"></script>
-<script src="assets/formelraster.js?v=intro-6"></script>
+<script src="assets/formelraster.js?v=intro-7"></script>
 </body>
 </html>

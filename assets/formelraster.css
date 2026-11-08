@@ -142,3 +142,5 @@ img{-webkit-user-drag:none}
 @keyframes introToken{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:none}}
 :root[data-motion=off] .onboarding-card *,:root[data-motion=off] #onboarding{animation:none!important}
 @media(max-width:390px){#onboarding[data-intro=true] .intro-logo{width:70px;height:70px}.intro-equations span:nth-child(2){right:3%;bottom:12%}}
+.hero .intro-replay{margin-top:12px;padding:6px 11px;background:#e0ffed20;color:#effff5;border-color:#b7e4cd70;box-shadow:inset 0 1px 0 #ffffff35;font-size:13px}
+.hero .intro-replay:hover{background:#e0ffed38;border-color:#c9ffe1}

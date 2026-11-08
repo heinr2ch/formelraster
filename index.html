@@ -6,7 +6,7 @@
 <meta name="description" content="Formelraster ist ein unabhängiges Tabellenrätselspiel mit Zeitmodus, Training und einem freien Arbeitsblatt.">
 <link rel="icon" href="assets/formelraster.svg?v=2" type="image/svg+xml">
 <script src="assets/theme.js"></script>
-<link rel="stylesheet" href="assets/formelraster.css?v=glass-3">
+<link rel="stylesheet" href="assets/formelraster.css?v=intro-6">
 </head>
 <body>
 <svg class="glass-defs" aria-hidden="true" width="0" height="0"><defs><filter id="glassRefraction" x="-10%" y="-30%" width="120%" height="160%" color-interpolation-filters="sRGB"><feTurbulence type="fractalNoise" baseFrequency=".012 .042" numOctaves="1" seed="11" result="glassNoise"/><feDisplacementMap in="SourceGraphic" in2="glassNoise" scale="11" xChannelSelector="R" yChannelSelector="G"/></filter></defs></svg>
@@ -51,7 +51,20 @@
 <button role="menuitem" data-action="insert-column">Spalte einfügen</button>
 <button role="menuitem" data-action="delete-column">Spalte löschen</button>
 </div>
-<dialog id="guide"><h2>So spielst du</h2><label class="motion-setting">Animationen <select id="motionPicker"><option value="system">System</option><option value="on">An</option><option value="off">Aus</option></select></label><p>Im Ranked bekommst du drei Aufgaben mit je eigener Zeit. Das Zeitlimit startet erst mit der Runde. Richtige Antworten bringen Punkte, Restzeit einen Bonus. Ein Tipp und falsche Versuche kosten Punkte.</p><ul><li>Gib jede Antwort als Formel mit führendem = ein, etwa <kbd>=SUMME(B2:B5)</kbd>.</li><li>Ziehe mit der Maus über Zellen, um einen Bereich zu markieren. Ein Rechtsklick öffnet die Zellaktionen. Das grüne Kästchen unten rechts füllt Formeln oder Werte aus. Über den kleinen grünen Griff oben links verschiebst du die Auswahl.</li><li>Tippe z. B. <kbd>=SUMME(</kbd> in die <strong>ƒx</strong>-Leiste oder das Antwortfeld und ziehe über einen Zellbereich, um ihn einzusetzen. Formel mit <kbd>Enter</kbd> übernehmen.</li><li><kbd>↑</kbd> <kbd>↓</kbd> <kbd>←</kbd> <kbd>→</kbd> navigieren, mit <kbd>Umschalt</kbd> wird dabei markiert. <kbd>Enter</kbd> geht eine Zeile weiter, <kbd>Tab</kbd> eine Zelle. <kbd>F2</kbd> bearbeitet, <kbd>Esc</kbd> bricht die Zellbearbeitung ab.</li><li>Mit <kbd>Strg+C</kbd> und <kbd>Strg+V</kbd> kopierst du Bereiche und fügst Tabellenwerte ein. <kbd>Entf</kbd> leert eine Mehrfachauswahl. <strong>Σ AutoSumme</strong> schreibt eine Summenformel.</li><li>Beim Ausfüllen passt sich <kbd>A1</kbd> an. <kbd>$A$1</kbd> bleibt fest. Zwei markierte Zahlen wie 1 und 2 werden beim Ziehen als Reihe fortgesetzt.</li><li>Verfügbar sind SUMME, MITTELWERT, MIN, MAX, ANZAHL, WENN, RUNDEN, ZÄHLENWENN, SUMMEWENN und XVERWEIS sowie ihre englischen Namen.</li><li>In Formeln trennst du Argumente mit Semikolon. Auf Englisch geht auch ein Komma, wenn es von Leerzeichen gefolgt wird. Dezimalzahlen dürfen Komma oder Punkt verwenden.</li><li>Training und Kreativmodus haben keinen Timer. Der CSV-Export enthält die berechneten Zellwerte.</li></ul><form method="dialog"><button class="primary">Verstanden</button></form></dialog>
+<dialog id="onboarding" aria-labelledby="onboardingTitle">
+<div class="onboarding-card">
+ <div class="onboarding-top"><span class="eyebrow">Dein Einstieg in Formelraster</span><span id="onboardingProgress" class="onboarding-progress"></span></div>
+ <div class="onboarding-art" aria-hidden="true">
+ <div class="onboarding-grid"></div>
+ <div class="intro-equations"><span>A1</span><span>=SUMME(B2:B5)</span><span>Σ</span><span>$B$2</span></div>
+ <img class="intro-logo" src="assets/formelraster.svg?v=2" alt="" width="90" height="90">
+ <span id="onboardingGlyph"></span>
+</div>
+<div class="intro-developer"><span class="label">Entwickelt von</span><img src="assets/developer-logo.png" alt="KlneArbyte" width="1376" height="768"></div>
+ <h2 id="onboardingTitle"></h2><p id="onboardingText"></p>
+ <div class="onboarding-actions"><button id="onboardingDismiss" class="ghost">Nicht mehr anzeigen</button><button id="onboardingSkip" class="ghost">Überspringen</button><button id="onboardingNext" class="primary">Weiter</button></div>
+</div></dialog>
+<dialog id="guide"><h2>So spielst du</h2><button id="showOnboarding" type="button" class="ghost">Tutorial erneut ansehen</button><label class="motion-setting">Animationen <select id="motionPicker"><option value="system">System</option><option value="on">An</option><option value="off">Aus</option></select></label><p>Im Ranked bekommst du drei Aufgaben mit je eigener Zeit. Das Zeitlimit startet erst mit der Runde. Richtige Antworten bringen Punkte, Restzeit einen Bonus. Ein Tipp und falsche Versuche kosten Punkte.</p><ul><li>Gib jede Antwort als Formel mit führendem = ein, etwa <kbd>=SUMME(B2:B5)</kbd>.</li><li>Ziehe mit der Maus über Zellen, um einen Bereich zu markieren. Ein Rechtsklick öffnet die Zellaktionen. Das grüne Kästchen unten rechts füllt Formeln oder Werte aus. Über den kleinen grünen Griff oben links verschiebst du die Auswahl.</li><li>Tippe z. B. <kbd>=SUMME(</kbd> in die <strong>ƒx</strong>-Leiste oder das Antwortfeld und ziehe über einen Zellbereich, um ihn einzusetzen. Formel mit <kbd>Enter</kbd> übernehmen.</li><li><kbd>↑</kbd> <kbd>↓</kbd> <kbd>←</kbd> <kbd>→</kbd> navigieren, mit <kbd>Umschalt</kbd> wird dabei markiert. <kbd>Enter</kbd> geht eine Zeile weiter, <kbd>Tab</kbd> eine Zelle. <kbd>F2</kbd> bearbeitet, <kbd>Esc</kbd> bricht die Zellbearbeitung ab.</li><li>Mit <kbd>Strg+C</kbd> und <kbd>Strg+V</kbd> kopierst du Bereiche und fügst Tabellenwerte ein. <kbd>Entf</kbd> leert eine Mehrfachauswahl. <strong>Σ AutoSumme</strong> schreibt eine Summenformel.</li><li>Beim Ausfüllen passt sich <kbd>A1</kbd> an. <kbd>$A$1</kbd> bleibt fest. Zwei markierte Zahlen wie 1 und 2 werden beim Ziehen als Reihe fortgesetzt.</li><li>Verfügbar sind SUMME, MITTELWERT, MIN, MAX, ANZAHL, WENN, RUNDEN, ZÄHLENWENN, SUMMEWENN und XVERWEIS sowie ihre englischen Namen.</li><li>In Formeln trennst du Argumente mit Semikolon. Auf Englisch geht auch ein Komma, wenn es von Leerzeichen gefolgt wird. Dezimalzahlen dürfen Komma oder Punkt verwenden.</li><li>Training und Kreativmodus haben keinen Timer. Der CSV-Export enthält die berechneten Zellwerte.</li></ul><form method="dialog"><button class="primary">Verstanden</button></form></dialog>
 <dialog id="glossary" aria-labelledby="glossaryTitle">
 <div class="glossary-shell">
 <header class="glossary-head"><div class="glossary-top"><div><span class="eyebrow">Nachschlagen &amp; ausprobieren</span><h2 id="glossaryTitle">Formelglossar</h2></div><form method="dialog"><button aria-label="Glossar schließen">×</button></form></div>
@@ -64,6 +77,6 @@
 <script src="data/excel-function-index.js"></script>
 <script src="data/challenges.js"></script>
 <script src="assets/endless.js"></script>
-<script src="assets/formelraster.js?v=start-4"></script>
+<script src="assets/formelraster.js?v=intro-6"></script>
 </body>
 </html>

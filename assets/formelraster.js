@@ -538,22 +538,41 @@ if(motionPicker){
  };
 }
 function refreshSound(){ $("soundToggle").setAttribute("aria-pressed",String(soundEnabled)); }
+let paperNoise;
 function playCue(kind){
  if(!soundEnabled)return;
- const Audio=window.AudioContext||window.webkitAudioContext;if(!Audio)return;
+ const Audio=window.AudioContext||window.webkitAudioContext;
+ if(!Audio)return;
  try{
   audioContext??=new Audio();
-  if(audioContext.state==="suspended")audioContext.resume().catch(()=>{});
-  const notes=kind==="success"?[523,659,784]:kind==="retry"?[290,230]:kind==="task"?[392,523]:[580];
-  const time=audioContext.currentTime;
-  notes.forEach((hz,i)=>{
-   const oscillator=audioContext.createOscillator(),volume=audioContext.createGain();
-   const start=time+i*.062;
-   oscillator.type="sine";oscillator.frequency.value=hz;
-   volume.gain.setValueAtTime(.001,start);volume.gain.exponentialRampToValueAtTime(.075,start+.013);
-   volume.gain.exponentialRampToValueAtTime(.001,start+.15);
-   oscillator.connect(volume);volume.connect(audioContext.destination);oscillator.start(start);oscillator.stop(start+.16);
-  });
+  const context=audioContext;
+  if(context.state==="suspended"){
+   context.resume().then(()=>{if(context.state==="running")playCue(kind)}).catch(()=>{});
+   return;
+  }
+  if(!paperNoise){
+   paperNoise=context.createBuffer(1,Math.floor(context.sampleRate*.32),context.sampleRate);
+   const data=paperNoise.getChannelData(0);
+   for(let i=0;i<data.length;i++)data[i]=Math.random()*2-1;
+  }
+  const time=context.currentTime;
+  function rustle(delay,duration,level,from,to){
+   const at=time+delay,noise=context.createBufferSource(),filter=context.createBiquadFilter(),volume=context.createGain();
+   noise.buffer=paperNoise;filter.type="bandpass";filter.Q.value=.65;
+   filter.frequency.setValueAtTime(from,at);filter.frequency.exponentialRampToValueAtTime(to,at+duration);
+   volume.gain.setValueAtTime(.001,at);volume.gain.linearRampToValueAtTime(level,at+duration*.25);
+   volume.gain.exponentialRampToValueAtTime(.001,at+duration);
+   noise.connect(filter);filter.connect(volume);volume.connect(context.destination);noise.start(at,0,duration);
+  }
+  if(kind==="task"){rustle(0,.20,.12,1400,3100);rustle(.08,.13,.065,2800,1100);return}
+  if(kind==="cell"){rustle(0,.075,.10,2300,1100);return}
+  rustle(0,kind==="success"?.16:.075,.085,1900,900);
+  const at=time+(kind==="success"?.09:.025),tap=context.createOscillator(),volume=context.createGain();
+  tap.type="sine";tap.frequency.setValueAtTime(kind==="success"?130:102,at);
+  tap.frequency.exponentialRampToValueAtTime(58,at+.10);
+  volume.gain.setValueAtTime(.001,at);volume.gain.linearRampToValueAtTime(.12,at+.009);
+  volume.gain.exponentialRampToValueAtTime(.001,at+.11);
+  tap.connect(volume);volume.connect(context.destination);tap.start(at);tap.stop(at+.12);
  }catch{}
 }
 const motionClass={task:"cue-task",success:"cue-success",retry:"cue-retry",cell:"cue-cell"};
@@ -653,3 +672,33 @@ document.querySelectorAll("[data-scope]").forEach(button=>button.onclick=()=>{
 tasks.forEach((t,i)=>$("challenge").add(new Option(t.tier+" · "+t.title,i)));
 creativeProjects.forEach((project,i)=>$("creativeProject").add(new Option(project.title,i)));
 makeGrid();switchMode("ranked");
+const onboarding=$("onboarding");
+if(onboarding){
+ const onboardingKey="formelraster-onboarding-v1";
+ const steps=[
+  ["01","Willkommen bei Formelraster","Löse Tabellenrätsel direkt im Arbeitsblatt. Wähle Training zum Kennenlernen, Ranked gegen die Uhr oder Unendlich für laufend neue Aufgaben."],
+  ["ƒx","Rechne im Arbeitsblatt","Klicke oder tippe auf eine Zelle. Schreib zum Beispiel =SUMME(B2:B5). Mit Enter übernimmst du die Formel. Das ƒx-Glossar zeigt dir weitere Beispiele."],
+  ["✓","Gib deine Formel ab","Trage unten eine Formel mit führendem = ein und drücke Prüfen. Im Kreativmodus kannst du eigene Tabellen bauen oder ein Projekt ausprobieren."]
+ ];
+ let step=0,seen=false;
+ try{seen=localStorage.getItem(onboardingKey)==="seen"}catch{}
+ function markOnboardingSeen(){try{localStorage.setItem(onboardingKey,"seen")}catch{}}
+ function drawOnboarding(){
+  const [glyph,title,description]=steps[step];
+  onboarding.dataset.intro=String(step===0);
+  $("onboardingProgress").textContent=(step+1)+" / "+steps.length;
+  $("onboardingGlyph").textContent=glyph;$("onboardingTitle").textContent=title;
+  $("onboardingText").textContent=description;
+  $("onboardingNext").textContent=step===steps.length-1?"Losspielen":"Weiter";
+ }
+ function showOnboarding(){step=0;drawOnboarding();onboarding.showModal();$("onboardingNext").focus()}
+ $("onboardingNext").onclick=()=>{
+  if(step===steps.length-1){onboarding.close();return}
+  step++;drawOnboarding();
+ };
+ $("onboardingSkip").onclick=()=>$("onboarding").close();
+ $("onboardingDismiss").onclick=()=>{markOnboardingSeen();onboarding.close()};
+ onboarding.addEventListener("close",markOnboardingSeen);
+ $("showOnboarding").onclick=()=>{$("guide").close();showOnboarding()};
+ if(!seen)showOnboarding();
+}
